@@ -2,7 +2,7 @@ package com.celik.cryptocurrency.model;
 
 import com.google.gson.annotations.SerializedName;
 
-public class Currency {
+public class CryptoCurrency {
 
     @SerializedName("currency")
     private String name;

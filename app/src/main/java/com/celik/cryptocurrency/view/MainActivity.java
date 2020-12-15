@@ -1,11 +1,14 @@
 package com.celik.cryptocurrency.view;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 
 import com.celik.cryptocurrency.R;
-import com.celik.cryptocurrency.model.Currency;
+import com.celik.cryptocurrency.adapter.RecyclerViewAdapter;
+import com.celik.cryptocurrency.model.CryptoCurrency;
 import com.celik.cryptocurrency.service.CryptoAPI;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -21,7 +24,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
 
-    ArrayList<Currency> currencies;
+    RecyclerView recyclerView;
+    RecyclerViewAdapter recyclerViewAdapter;
+
+    ArrayList<CryptoCurrency> currencies;
     String BASE_URL = "https://api.nomics.com/v1/";
     Retrofit retrofit;
 
@@ -29,6 +35,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        recyclerView = findViewById(R.id.recyclerView);
+
 
         //Retrofit & Json
         Gson gson = new GsonBuilder().setLenient().create();
@@ -39,6 +48,8 @@ public class MainActivity extends AppCompatActivity {
 
 
         loadData();
+
+
     }
 
 
@@ -47,23 +58,23 @@ public class MainActivity extends AppCompatActivity {
     public void loadData(){
         CryptoAPI cryptoAPI = retrofit.create(CryptoAPI.class);
 
-        Call<List<Currency>> call = cryptoAPI.getData();
+        Call<List<CryptoCurrency>> call = cryptoAPI.getData();
 
-        call.enqueue(new Callback<List<Currency>>() {
+        call.enqueue(new Callback<List<CryptoCurrency>>() {
             @Override
-            public void onResponse(Call<List<Currency>> call, Response<List<Currency>> response) {
+            public void onResponse(Call<List<CryptoCurrency>> call, Response<List<CryptoCurrency>> response) {
                 if (response.isSuccessful()){
-                    List<Currency> responseList = response.body();
+                    List<CryptoCurrency> responseList = response.body();
                     currencies = new ArrayList<>(responseList);
 
-                    for (Currency currency:currencies){
-                        System.out.println(currency.getName() + "  " + currency.getPrice());
-                    }
+                    recyclerViewAdapter = new RecyclerViewAdapter(currencies);
+                    recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+                    recyclerView.setAdapter(recyclerViewAdapter);
                 }
             }
 
             @Override
-            public void onFailure(Call<List<Currency>> call, Throwable t) {
+            public void onFailure(Call<List<CryptoCurrency>> call, Throwable t) {
                 t.printStackTrace();
             }
         });
